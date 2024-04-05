@@ -107,18 +107,35 @@ class TabSettingsListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final account = ref.watch(accountProvider(tabSetting.acct));
-    return ListTile(
-      leading: AccountScope(
-        account: account,
-        child: TabIconView(icon: tabSetting.icon),
-      ),
-      title: Text(tabSetting.name ?? tabSetting.tabType.displayName(context)),
-      subtitle: Text(
-        "${tabSetting.tabType.displayName(context)} / ${tabSetting.acct}",
-      ),
-      trailing: const Icon(Icons.drag_handle),
-      onTap: () => context.pushRoute(TabSettingsRoute(tabIndex: index)),
-    );
+    try {
+      final account = ref.watch(accountProvider(tabSetting.acct));
+      return ListTile(
+        leading: AccountScope(
+          account: account,
+          child: TabIconView(icon: tabSetting.icon),
+        ),
+        title: Text(tabSetting.name ?? tabSetting.tabType.displayName(context)),
+        subtitle: Text(
+          "${tabSetting.tabType.displayName(context)} / ${tabSetting.acct}",
+        ),
+        trailing: const Icon(Icons.drag_handle),
+        onTap: () => context.pushRoute(TabSettingsRoute(tabIndex: index)),
+      );
+    } catch (e) {
+      return ListTile(
+        title: const Text("Error: Please delete this tab."),
+        subtitle: Text(
+          "${tabSetting.tabType.displayName(context)} / ${tabSetting.acct}",
+        ),
+        trailing: const Icon(Icons.delete_outline_outlined),
+        onTap: () {
+          ref.read(tabSettingsRepositoryProvider).save(ref
+              .read(tabSettingsRepositoryProvider)
+              .tabSettings
+              .toList()
+            ..removeAt(index));
+        },
+      );
+    }
   }
 }

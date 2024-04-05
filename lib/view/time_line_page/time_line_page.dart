@@ -160,13 +160,32 @@ class TimeLinePageState extends ConsumerState<TimeLinePage> {
         child: Row(
           children: tabSettings.mapIndexed(
             (index, tabSetting) {
-              final account = ref.watch(accountProvider(tabSetting.acct));
-              return Ink(
-                color: tabSetting == currentTabSetting
-                    ? AppTheme.of(context).currentDisplayTabColor
-                    : Colors.transparent,
-                child: AccountScope(
-                  account: account,
+              try {
+                final account = ref.watch(accountProvider(tabSetting.acct));
+                return Ink(
+                  color: tabSetting == currentTabSetting
+                      ? AppTheme.of(context).currentDisplayTabColor
+                      : Colors.transparent,
+                  child: AccountScope(
+                    account: account,
+                    child: IconButton(
+                      icon: TabIconView(
+                        icon: tabSetting.icon,
+                        color: tabSetting == currentTabSetting
+                            ? Theme.of(context).primaryColor
+                            : Colors.white,
+                      ),
+                      onPressed: () => tabSetting == currentTabSetting
+                          ? reload()
+                          : pageController.jumpToPage(index),
+                    ),
+                  ),
+                );
+              } catch (e) {
+                return Ink(
+                  color: tabSetting == currentTabSetting
+                      ? AppTheme.of(context).currentDisplayTabColor
+                      : Colors.transparent,
                   child: IconButton(
                     icon: TabIconView(
                       icon: tabSetting.icon,
@@ -174,12 +193,10 @@ class TimeLinePageState extends ConsumerState<TimeLinePage> {
                           ? Theme.of(context).primaryColor
                           : Colors.white,
                     ),
-                    onPressed: () => tabSetting == currentTabSetting
-                        ? reload()
-                        : pageController.jumpToPage(index),
+                    onPressed: () => reload(),
                   ),
-                ),
-              );
+                );
+              }
             },
           ).toList(),
         ),
